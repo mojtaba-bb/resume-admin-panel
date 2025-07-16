@@ -1,0 +1,89 @@
+
+@import "tailwindcss";
+
+
+.ChartShadow{
+    -webkit-box-shadow: inset 30px 0px 20px 0px rgba(24,24,27,1);
+    -moz-box-shadow: inset 30px 0px 20px 0px rgba(24,24,27,1);
+    box-shadow: inset 30px 0px 20px 0px rgba(24,24,27,1);
+}
+
+:root{
+    --postsColor : var(--color-sky-300);
+    --SeoColor : #7DFFCF;
+    --mediaColor : #d97706;
+    
+    --chatColor : #FFC77D;
+    --commentsColor : #F36969;
+    --jobsColor: #C77DFF;
+}
+
+
+.w-78{
+
+    width: calc(var(--spacing) * 78) /* 18rem = 288px */;
+
+}
+
+
+
+.loader {
+  width: 65px;
+  aspect-ratio: 1;
+  position: relative;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  position: absolute;
+  border-radius: 50px;
+  box-shadow: 0 0 0 3px inset oklch(0.879 0.169 91.605);
+  animation: l4 2.5s infinite;
+}
+.loader:after {
+  animation-delay: -1.25s;
+}
+@keyframes l4 {
+  0% {
+    inset: 0 35px 35px 0;
+  }
+  12.5% {
+    inset: 0 35px 0 0;
+  }
+  25% {
+    inset: 35px 35px 0 0;
+  }
+  37.5% {
+    inset: 35px 0 0 0;
+  }
+  50% {
+    inset: 35px 0 0 35px;
+  }
+  62.5% {
+    inset: 0 0 0 35px;
+  }
+  75% {
+    inset: 0 0 35px 35px;
+  }
+  87.5% {
+    inset: 0 0 35px 0;
+  }
+  100% {
+    inset: 0 35px 35px 0;
+  }
+}
+
+
+.grid-cols-custom{
+  
+display: grid;
+grid-template-columns: min-content repeat(3, minmax(0 ,1fr));
+
+} 
+
+.newbg{
+  
+  background: linear-gradient(225deg, rgba(36, 111, 130, 1.000) 0.000%, rgba(55, 107, 128, 1.000) 16.667%, rgba(80, 105, 122, 1.000) 33.333%, rgba(108, 107, 114, 1.000) 50.000%, rgba(137, 112, 105, 1.000) 66.667%, rgba(166, 119, 100, 1.000) 83.333%, rgba(191, 127, 98, 1.000) 100.000%)
+
+}
+
