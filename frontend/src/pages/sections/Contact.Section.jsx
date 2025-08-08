@@ -14,40 +14,161 @@ import { FaUserCog } from "react-icons/fa";
 import axios from "axios";
 function ContactSection() {
   const [info, setInfo] = useState({
+    _id:null,
     userName: "MojtabaDev_79",
-    profileImage: "",
-    profileImageAltEn: "",
-    profileImageAltFa: "",
+    file: "",
+    logoAlt:{
+      en:"",
+      fa:""
+    },
     telegram: "",
     instagram: "",
     github: "",
-    x: "",
+    twitter: "",
+    updatedAt:null,
+    editedAt:null
   });
+
+  function timeAgo(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+
+  const intervals = [
+    { label: 'y', seconds: 31536000 },
+    { label: 'mo', seconds: 2592000 },
+    { label: 'w', seconds: 604800 },
+    { label: 'd', seconds: 86400 },
+    { label: 'h', seconds: 3600 },
+    { label: 'm', seconds: 60 },
+    { label: 's', seconds: 1 },
+  ];
+
+  for (const interval of intervals) {
+    const count = Math.floor(seconds / interval.seconds);
+    if (count >= 1) return `${count}${interval.label}`;
+  }
+
+  return 'now';
+}
+
+
   const fetchMyInfo = async () => {
+    
     try {
+      
       const res = await axios.get(
         "http://localhost:3000/api/page-content/contact"
       );
+      const img = await axios.get(
+        `http://localhost:3000/api/media/${res.data.contactInfo.mainImage}`
+      )
+
+
+      setInfo(prev=>({
+        ...prev,
+        file:`http://localhost:3000${img.data.media.uri}`,
+        logoAlt:{ en:img.data.media.alt.en , fa:img.data.media.alt.fa},
+        
+      }))
+      setInfo(prev=>({
+        ...prev,
+        telegram:res.data.contactInfo.telegram,
+        instagram:res.data.contactInfo.instagram,
+        github:res.data.contactInfo.gitHub,
+        twitter:res.data.contactInfo.twitter,
+        userName:res.data.contactInfo.username,
+        updatedAt:res.data.contactInfo.updatedAt,
+        editedAt:timeAgo(res.data.contactInfo.updatedAt)
+      }))
+      
+      setInfo(prev=>({
+        ...prev,_id:res.data.contactInfo._id     }))
       setIsLoading(false);
     } catch (error) {
       if (error.status != 404) {
         toast.error(error.message);
       }
-
+      console.log(error)
       setIsLoading(false);
     }
+
   };
+
+const postData = async () => {
+  const formData = new FormData();
+  formData.append("mainProfile", info.file);               // فایل
+  formData.append("userName", info.userName);              // رشته‌ها
+ formData.append("logoAlt", JSON.stringify({
+  fa: info.logoAlt.fa,
+  en: info.logoAlt.en
+}));
+  
+  formData.append("telegram", info.telegram);
+  formData.append("instagram", info.instagram);
+  formData.append("gitHub", info.github);
+  formData.append("twitter", info.twitter);
+  
+  try {
+    const res = await axios.post(
+      "http://localhost:3000/api/page-content/contact",
+      formData,
+      {
+        headers: {
+          authorization: localStorage.getItem("Authorization"),
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    console.log(res.data);
+    toast.success("ذخیره شد!");
+  } catch (error) {
+    console.error("Error posting contact:", error);
+    toast.error("خطا در ارسال داده");
+  }
+};
+const updateData= async()=>{
+    const formData = new FormData();
+  formData.append("mainProfile", info.file);               // فایل
+  formData.append("userName", info.userName);              // رشته‌ها
+    formData.append("logoAlt", JSON.stringify({
+  fa: info.logoAlt.fa,
+  en: info.logoAlt.en
+}));
+  
+  formData.append("telegram", info.telegram);
+  formData.append("instagram", info.instagram);
+  formData.append("gitHub", info.github);
+  formData.append("twitter", info.twitter);
+  
+    try {
+    const res = await axios.put(
+      "http://localhost:3000/api/page-content/contact",
+      formData,
+      {
+        headers: {
+          authorization: localStorage.getItem("Authorization"),
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    console.log(res.data);
+    toast.success("ذخیره شد!");
+  } catch (error) {
+    console.error("Error posting contact:", error);
+    toast.error("خطا در ارسال داده");
+  }
+  
+}
   useEffect(() => {
     setIsLoading(true);
     fetchMyInfo();
   }, []);
 
-  useEffect(() => {
-    console.log(info);
-  }, [info]);
+
   const [onChange, setOnChange] = useState("Telegram");
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <div className="min-h-screen ">
@@ -58,17 +179,20 @@ function ContactSection() {
         urlName={"Back"}
       />
       <Toaster />
-      <div className="border-2 flex flex-col justify-between relative w-lg aspect-[9/10] mx-auto my-6 overflow-hidden  rounded-2xl bg- border-amber-400">
+      <div className="border-2 flex flex-col justify-between relative w-lg h-auto pb-6 gap-10 mx-auto my-6 overflow-hidden  rounded-2xl bg- border-amber-400">
         <span className="w-4/5 aspect-square z-0 bg-amber-400 rounded-full absolute -translate-x-[35%] -translate-y-1/2" />
+        <span className="absolute bottom-3 text-amber-400 right-3 opacity-30 cursor-default">
+            {info.editedAt}
+        </span>
         <div className="z-10 flex flex-col  justify-center items-center">
           <input
             type="file"
-            name="profileImage"
+            name="mainProfile"
             id="profileImage"
             onChange={(e) => {
               setInfo((prev) => ({
                 ...prev,
-                profileImage: e.target.files[0],
+                file: e.target.files[0],
               }));
             }}
             className="hidden"
@@ -76,9 +200,10 @@ function ContactSection() {
           <span className="w-4/12 relative mt-5 aspect-square block  bg-gray-800 overflow-hidden  border-8 border-gray-900 mx-auto rounded-full">
             <img
               src={
-                info.profileImage != ""
-                  ? URL.createObjectURL(info.profileImage)
-                  : ""
+                info.file != ""
+                  ? typeof info.file!= "string"
+                  ?URL.createObjectURL(info.file)
+                  : info.file:""
               }
               alt=""
               className="w-full h-full object-cover absolute  border-0 outline-0"
@@ -113,33 +238,33 @@ function ContactSection() {
 
             <AiOutlineEdit />
           </label>
-          <div className="p-3 rounded-2xl flex-col gap-3 border justify-center items-center flex mt-5 text-amber-400/70">
+          <div className="p-3   rounded-2xl overflow-x-hidden flex-col gap-3 border justify-center items-center flex mt-5 text-amber-400/70">
             <span className="text-lg font-bold">Profile Alt</span>
-            <div className="flex gap-3">
-              <label htmlFor="profileImageAltEn">
+            <div className="flex gap-3 ">
+              <label htmlFor="profileImageAltEn" className="max-w-1/2">
                 Eng :{" "}
                 <input
                   type="text"
-                  className="field-sizing-content outline-none border-b text-amber-400 border-white/30  min-w-24"
-                  value={info.profileImageAltEn}
+                  className=" field-sizing-fixed  outline-none border-b text-amber-400 border-white/30  w-24"
+                  value={info.logoAlt.en}
                   onChange={(e)=>{
                     setInfo((prev)=>({
-                      ...prev , profileImageAltEn:e.target.value
+                      ...prev , logoAlt:{...prev , en:e.target.value}
                     }))
                   }}
                   name=""
                   id="profileImageAltEn"
                 />
               </label>
-              <label htmlFor="profileImageAltFa">
+              <label htmlFor="profileImageAltFa" className="max-w-1/2">
                 Fa :{" "}
                 <input
                   type="text"
-                  className="field-sizing-content outline-none border-b text-amber-400 border-white/30 min-w-24"
-                  value={info.profileImageAltFa}
+                  className="field-sizing-fixed  outline-none border-b text-amber-400 border-white/30 w-24"
+                  value={info.logoAlt.fa}
                   onChange={(e)=>{
                     setInfo((prev)=>({
-                      ...prev , profileImageAltFa:e.target.value
+                      ...prev , logoAlt:{...prev.logoAlt , fa:e.target.value}
                     }))
                   }}
                   id="profileImageAltFa"
@@ -148,7 +273,7 @@ function ContactSection() {
             </div>
           </div>
         </div>
-        <div className="h-1/2  flex flex-col justify-evenly">
+        <div className="h-1/2 gap-3  flex flex-col justify-evenly">
           <div className="flex justify-center gap-3">
             <span
               onClick={() => {
@@ -214,7 +339,7 @@ function ContactSection() {
                 if (onChange === "X") {
                   setInfo((prev) => ({
                     ...prev,
-                    x: e.target.value,
+                    twitter: e.target.value,
                   }));
                 }
               }}
@@ -227,13 +352,17 @@ function ContactSection() {
                   : onChange === "GitHub"
                   ? info.github
                   : onChange === "X"
-                  ? info.x
+                  ? info.twitter
                   : ""
               }
               className=" flex-1 text-amber-400 flex px-3 items-center border-2 outline-0 border-amber-400/55 rounded-2xl"
             />
           </div>
-          <span className=" px-6 rounded-full mx-auto flex font-bold  gap-3 cursor-pointer  items-center justify-center py-2 bg-linear-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-teal-500 hover:to-green-500">
+          <span onClick={
+            ()=>{
+              info._id===null?postData():updateData()
+            }
+          } className=" px-6 rounded-full mx-auto flex font-bold  gap-3 cursor-pointer  items-center justify-center py-2 bg-linear-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-teal-500 hover:to-green-500">
             <CiSaveUp1 className="text-xl" />
             <span className="font-semibold">Save Changes</span>
           </span>

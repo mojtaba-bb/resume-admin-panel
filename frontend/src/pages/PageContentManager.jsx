@@ -11,7 +11,7 @@ const sections = [
   { name: "Quote", icon: <FaQuoteRight />, path: "/section-manager/quote-section" },
   { name: "Works", icon: <FaProjectDiagram />, path: "/section-manager/works-section" },
   { name: "Contact", icon: <FaEnvelope />, path: "/section-manager/contact-section" },
-  { name: "Footer", icon: <FaTools />, path: "/section-manager/footer-section" },
+  { name: "Footer", icon: <FaTools />,inactive:true, path: "/section-manager/footer-section" },
 ];
 
 function PageContentManager() {
@@ -31,7 +31,18 @@ function PageContentManager() {
       {/* grid cards */}
       <div className="flex justify-center">
         <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {sections.map(({ name, icon, path }) => (
+          {sections.map(({ name, icon, path ,inactive }) => (
+            inactive?            <span
+              key={name}
+              
+              className="w-72 h-72 bg-gray-800   rounded-2xl relative  flex flex-col items-center justify-center transition-all duration-300 group"
+            > 
+              <div className='w-full h-full absolute bg-black/60 rounded-2xl'>
+
+              </div>
+              <div className="text-5xl text-cyan-400 ">{icon}</div>
+              <span className="mt-4 text-xl font-semibold ">{name}</span>
+            </span>:
             <Link
               key={name}
               to={path}

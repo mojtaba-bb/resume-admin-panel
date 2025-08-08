@@ -64,7 +64,7 @@ function ResumeComponent({ className }) {
     try {
          
         const res = await axios.get("http://localhost:3000/api/resume",{headers:{authorization: localStorage.getItem("Authorization"),}})
-        toast.success(res.data.message.en)
+        
         setResume(res.data.resume)
     } catch (error) {
         toast.error(error.data.message.en)
